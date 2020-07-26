@@ -1,7 +1,8 @@
 package main
 
-import "fmt"
+import "BiometricToken/router"
 
 func main() {
-	fmt.Println("hello")
+	e := router.New()
+	e.Logger.Fatal(e.Start(":1111"))
 }
