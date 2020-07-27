@@ -1,22 +1,31 @@
 package db
 
 import (
-	model "BiometricToken/models"
+	"BiometricToken/models"
+	"fmt"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"log"
 )
 
 var db *gorm.DB
-
-func DbManager() *gorm.DB {
-	return db
-}
+var err error
 
 func DbInit()  {
-	db, err := gorm.Open("sqlite3","./storage/db.db")
+
+
+	connectString := fmt.Sprintf("./Storage/biotoken.db")
+	fmt.Println("connectString: " + connectString)
+	db, err := gorm.Open("sqlite3",connectString)
 	if err != nil {
-		panic("Error Connecting to Database")
+		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
 
-	db.AutoMigrate(&model.Stats{})
+	db.AutoMigrate(&models.Stats{})
+}
+
+
+func DbManager() *gorm.DB {
+	return db
 }

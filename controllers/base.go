@@ -25,7 +25,7 @@ func BadRequestResponse(c echo.Context, message string) error {
 
 func DataResponse(c echo.Context, data interface{}, status int) error {
 	return c.JSONPretty(status, Data{
-		Success: false,
+		Success: true,
 		Data:    data,
 	},
 	" ")

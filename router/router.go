@@ -1,7 +1,7 @@
 package router
 
 import (
-	"BiometricToken/db"
+	"BiometricToken/controllers"
 	"github.com/labstack/echo/v4"
 )
 
@@ -14,6 +14,8 @@ func New() *echo.Echo {
 
 	e := echo.New()
 	e.GET("/index", home)
-	db.DbInit()
+	e.GET("/getusers", controllers.GetUsers)
+	e.POST("/registeruser", controllers.RegisterUsers)
+
 	return e
 }
