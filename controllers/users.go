@@ -6,6 +6,7 @@ import (
 	Userlib "BiometricToken/lib/user"
 	"BiometricToken/models"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"log"
 
@@ -17,6 +18,7 @@ import (
 	"time"
 )
 
+
 func RegisterUsers(c echo.Context)	error  {
 	db := db.DbManager()
 	connectString := fmt.Sprintf("./storage/biotoken.db")
@@ -26,34 +28,72 @@ func RegisterUsers(c echo.Context)	error  {
 		log.Println("Error Connecting to Database")
 	}
 	db.Close()
+
+	context := c.Get("user").(*jwt.Token)
+	claims := context.Claims.(jwt.MapClaims)
+	adminEmail := claims["email"]
+
+	adminAuth := new(models.Admin)
+	exists := db.Where("email = ?", adminEmail).First(&adminAuth).RecordNotFound()
+	if exists {
+		return BadRequestResponse(c,"Admin Verification from jwt claims Error")
+	}
+
+
 	params := new(Userlib.RegisterParams)
 
 	if err := c.Bind(params); err !=nil {
 		return BadRequestResponse(c,lib.INVALID_BODY)
 	}
 	log.Println(params)
+
 	user := new(models.User)
-	exists := db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
+
+	exists = db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
 	if exists {
 		return BadRequestResponse(c,lib.AccountExists)
 	}
-	user.Email	=	params.Email
-	user.FullName	=	params.FullName
-	user.CreatedAt	=	time.Now()
-	user.BioAuth	=	params.BioAuth
-	user.Active	=	true
-	user.Password	=	lib.GenerateHashFromPassword(params.Password)
-	db.Create(&user)
-	db.Save(&user)
-	exists = db.Where("email= ?", user.Email).Find(&user).RecordNotFound()
+	newUser := models.User{
+
+		FullName:      params.FullName,
+		Email:         params.Email,
+		Password:      lib.GenerateHashFromPassword(params.Password),
+		BioAuth:       true,
+		CreatedAt:     time.Now(),
+		Active:        true,
+		AdminEnrolled: models.WhoEnrolled{
+			AdminEmail: adminAuth.Email,
+			AdminFullName: adminAuth.FullName,
+			AdminID: adminAuth.ID,
+		},
+	}
+
+	db.Save(&newUser)
+	exists = db.Where("email= ?", newUser.Email).Find(&user).RecordNotFound()
 	if exists == true {
 		return BadRequestResponse(c,"Error saving user details")
 
 	}
-
-	return DataResponse(c, user, http.StatusOK)
+	response := Userlib.RegisterResponse{
+		User:    Userlib.UserResponse{
+			FullName: newUser.FullName,
+			Email: newUser.Email,
+			BioAuth: newUser.BioAuth,
+			Active: newUser.Active,
+		},
+		Success: true,
+		Admin:   Userlib.AdminDetail{
+			AdminID: adminAuth.ID,
+			AdminName: adminAuth.FullName,
+		},
+	}
+	return DataResponse(c, response, http.StatusOK)
 }
 
+// verify user in db then generate jwt for verify page
+
+
+//verify user with biodata
 func Verify(c echo.Context)	error {
 	//init the db
 	db := db.DbManager()
@@ -76,21 +116,22 @@ func Verify(c echo.Context)	error {
 		return BadRequestResponse(c,"Error saving user details")
 	}
 	//confirm user authentication from biodevice
-	user.BioAuth = params.BioAuth	//change this to the input from device
-	if user.BioAuth != true	{
+	//change this to the input from device
+	if params.BioAuth != true	{
 		return BadRequestResponse(c,"BioAuth invalid")
 	}
 	lastVerified := time.Now()
 	user.LastVerified = lastVerified
 	db.Save(&user)
 	//response
-	response := Userlib.UserResonse{
+	response := Userlib.UserVerifyResonse{
 		FullName:   user.FullName,
 		Email:      user.Email,
 		BioAuth:    params.BioAuth,
 		VerifiedAt:	lastVerified,
 		Active:     true,
 	}
+	//return c.Redirect(200, "/verify")
 
 	return DataResponse(c,response,http.StatusAccepted)
 }

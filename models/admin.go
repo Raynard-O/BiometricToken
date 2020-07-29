@@ -6,13 +6,7 @@ import (
 )
 
 
-type WhoEnrolled struct {
-	AdminFullName string	`json:"admin_full_name"`
-	AdminEmail	string	`json:"admin_email"`
-	AdminID	uint	`json:"admin_id"`
-}
-
-type User struct {
+type Admin struct {
 	gorm.Model
 	FullName     string    `json:"full_name"`
 	Email        string    `json:"email"`
@@ -22,6 +16,7 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 	Active       bool      `json:"active"`
 	LastVerified time.Time	`json:"last_verified"`
-	AdminEnrolled	WhoEnrolled	`json:"admin_enrolled"`
 }
+
+
 

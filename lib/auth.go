@@ -2,6 +2,10 @@ package lib
 
 import "golang.org/x/crypto/bcrypt"
 
+var PasswordIncoreect = "Password Entered Incorrect"
+
+
+
 func GenerateHashFromPassword(password string) string {
 	hash , err := bcrypt.GenerateFromPassword([]byte(password),14)
 	if err != nil {

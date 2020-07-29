@@ -11,9 +11,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="17a60046-3aa6-40ae-9688-6a6e5f08e9aa" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/configuration/config.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/configuration/prod.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/admin.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/admin/request.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/admin/response.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/admin/security.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/admin.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/auth.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/user/request.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/user/request.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/user/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/lib/user/response.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/router.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,10 +63,13 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/configuration" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/configuration" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib" />
     </key>
