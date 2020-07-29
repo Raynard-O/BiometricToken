@@ -5,15 +5,10 @@ import (
 	"BiometricToken/lib"
 	Userlib "BiometricToken/lib/user"
 	"BiometricToken/models"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
-	"log"
-
-	//"fmt"
-	//"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
-	//"log"
+	"log"
 	"net/http"
 	"time"
 )
@@ -21,13 +16,12 @@ import (
 
 func RegisterUsers(c echo.Context)	error  {
 	db := db.DbManager()
-	connectString := fmt.Sprintf("./storage/biotoken.db")
-	fmt.Println("connectString: " + connectString)
-	db, err := gorm.Open("sqlite3",connectString)
+
+	db, err := gorm.Open("sqlite3", "./storage/database.db")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	db.Close()
+	defer db.Close()
 
 	context := c.Get("user").(*jwt.Token)
 	claims := context.Claims.(jwt.MapClaims)
@@ -97,13 +91,12 @@ func RegisterUsers(c echo.Context)	error  {
 func Verify(c echo.Context)	error {
 	//init the db
 	db := db.DbManager()
-	connectString := fmt.Sprintf("./storage/biotoken.db")
-	fmt.Println("connectString: " + connectString)
-	db, err := gorm.Open("sqlite3",connectString)
+
+	db, err := gorm.Open("sqlite3", "./storage/database.db")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	db.Close()
+	defer db.Close()
 	//use the email to pull user from db
 	params := new(Userlib.VerifyParams)
 	if err := c.Bind(params); err != nil {
@@ -140,13 +133,12 @@ func Verify(c echo.Context)	error {
 
 func GetUsers(c echo.Context) error  {
 	db := db.DbManager()
-	connectString := fmt.Sprintf("./storage/biotoken.db")
-	fmt.Println("connectString: " + connectString)
-	db, err := gorm.Open("sqlite3",connectString)
+
+	db, err := gorm.Open("sqlite3", "./storage/database.db")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	db.Close()
+	defer db.Close()
 	var users []models.User
 
 	db.Find(&users)

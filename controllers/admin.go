@@ -5,7 +5,6 @@ import (
 	"BiometricToken/lib"
 	Adminlib "BiometricToken/lib/admin"
 	"BiometricToken/models"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"log"
@@ -13,15 +12,14 @@ import (
 	"time"
 )
 
-func AdminLogin(c echo.Context) error {
+func LoginAdmin(c echo.Context) error {
 	db := db.DbManager()
-	connectString := fmt.Sprintf("./storage/biotoken.db")
-	fmt.Println("connectString: " + connectString)
-	db, err := gorm.Open("sqlite3",connectString)
+
+	db, err := gorm.Open("sqlite3", "./storage/database.db")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	db.Close()
+	defer db.Close()
 
 	adminParams := new(Adminlib.AdminLoginParams)
 
@@ -31,10 +29,14 @@ func AdminLogin(c echo.Context) error {
 	if exists {
 		return BadRequestResponse(c,lib.AccountNotExist)
 	}
+	if admin.ID == 0 {
+		return BadRequestResponse(c, lib.AccountNotExist)
+	}
+
 
 	passwordMatch := lib.CompareHashWithPassword(admin.Password, adminParams.Password)
 	
-	if passwordMatch != true {
+	if !passwordMatch  || !adminParams.Auth {
 		return BadRequestResponse(c, lib.WrongPassword)
 	}
 	admin.LastVerified = time.Now()
@@ -49,4 +51,64 @@ func AdminLogin(c echo.Context) error {
 	}
 	db.Save(&admin)
 	return DataResponse(c, response, http.StatusAccepted)
+}
+
+func CreateAdmin(c echo.Context)	error	{
+	db := db.DbManager()
+
+	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	if err != nil {
+		log.Println("Error Connecting to Database")
+	}
+	defer db.Close()
+
+	params := new(Adminlib.CreateAdminParams)
+	if err := c.Bind(params); err != nil {
+		panic("error getting params")
+	}
+	admin := new(models.Admin)
+	exists := db.Where("email = ?", params.Email).First(&admin).RecordNotFound()
+
+	if !exists {
+		return BadRequestResponse(c,lib.AccountExists)
+	}
+	admin.FullName = params.FullName
+	admin.Email = params.Email
+	admin.Password = lib.GenerateHashFromPassword(params.Password)
+	admin.CreatedAt = time.Now()
+	admin.BioAuth = true
+	admin.Active = true
+	db.Create(&admin)
+	db.Save(&admin)
+
+	adminResponse := Adminlib.AdminCreateResponse{
+		FullName: admin.FullName,
+		Email:    admin.Email,
+		BioAuth:  admin.BioAuth,
+		Active:   admin.Active,
+	}
+	exists = db.Where("email= ?", admin.Email).Find(&admin).RecordNotFound()
+	if exists == true {
+		return c.JSON(http.StatusNotModified, lib.AccountNotExist)
+	}
+
+
+	return DataResponse(c, adminResponse, http.StatusAccepted)
+}
+
+
+func GetAdmin(c echo.Context) error  {
+	db := db.DbManager()
+
+	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	if err != nil {
+		log.Println("Error Connecting to Database")
+	}
+	defer db.Close()
+	var admins []models.Admin
+
+	db.Find(&admins)
+
+
+	return DataResponse(c, admins, http.StatusOK)
 }
