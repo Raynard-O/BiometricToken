@@ -7,4 +7,9 @@ type RegisterParams struct {
 	BioAuth bool	`json:"bio_auth"`
 }
 
+type VerifyParams struct {
+	Email	string	`json:"email"`
+	BioAuth	bool	`json:"bio_auth"`
+}
+
 

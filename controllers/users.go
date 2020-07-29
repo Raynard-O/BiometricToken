@@ -47,11 +47,55 @@ func RegisterUsers(c echo.Context)	error  {
 	db.Save(&user)
 	exists = db.Where("email= ?", user.Email).Find(&user).RecordNotFound()
 	if exists == true {
-		return c.JSON(http.StatusNotModified, "Error saving user details")
+		return BadRequestResponse(c,"Error saving user details")
+
 	}
 
 	return DataResponse(c, user, http.StatusOK)
 }
+
+func Verify(c echo.Context)	error {
+	//init the db
+	db := db.DbManager()
+	connectString := fmt.Sprintf("./storage/biotoken.db")
+	fmt.Println("connectString: " + connectString)
+	db, err := gorm.Open("sqlite3",connectString)
+	if err != nil {
+		log.Println("Error Connecting to Database")
+	}
+	db.Close()
+	//use the email to pull user from db
+	params := new(Userlib.VerifyParams)
+	if err := c.Bind(params); err != nil {
+		panic("error get input data")
+	}
+	//query db for user
+	user := new(models.User)
+	exists := db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
+	if exists == true {
+		return BadRequestResponse(c,"Error saving user details")
+	}
+	//confirm user authentication from biodevice
+	user.BioAuth = params.BioAuth	//change this to the input from device
+	if user.BioAuth != true	{
+		return BadRequestResponse(c,"BioAuth invalid")
+	}
+	lastVerified := time.Now()
+	user.LastVerified = lastVerified
+	db.Save(&user)
+	//response
+	response := Userlib.UserResonse{
+		FullName:   user.FullName,
+		Email:      user.Email,
+		BioAuth:    params.BioAuth,
+		VerifiedAt:	lastVerified,
+		Active:     true,
+	}
+
+	return DataResponse(c,response,http.StatusAccepted)
+}
+
+
 
 func GetUsers(c echo.Context) error  {
 	db := db.DbManager()
