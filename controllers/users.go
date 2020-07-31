@@ -17,7 +17,7 @@ import (
 func RegisterUsers(c echo.Context)	error  {
 	db := db.DbManager()
 
-	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
@@ -53,7 +53,6 @@ func RegisterUsers(c echo.Context)	error  {
 		Email:         params.Email,
 		Password:      lib.GenerateHashFromPassword(params.Password),
 		BioAuth:       true,
-		CreatedAt:     time.Now(),
 		Active:        true,
 		AdminEnrolled: models.WhoEnrolled{
 			AdminEmail: adminAuth.Email,
@@ -92,11 +91,13 @@ func Verify(c echo.Context)	error {
 	//init the db
 	db := db.DbManager()
 
-	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
+
+
 	//use the email to pull user from db
 	params := new(Userlib.VerifyParams)
 	if err := c.Bind(params); err != nil {
@@ -134,11 +135,13 @@ func Verify(c echo.Context)	error {
 func GetUsers(c echo.Context) error  {
 	db := db.DbManager()
 
-	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
+
+
 	var users []models.User
 
 	db.Find(&users)

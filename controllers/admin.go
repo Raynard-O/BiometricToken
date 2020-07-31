@@ -15,7 +15,7 @@ import (
 func LoginAdmin(c echo.Context) error {
 	db := db.DbManager()
 
-	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
@@ -56,11 +56,12 @@ func LoginAdmin(c echo.Context) error {
 func CreateAdmin(c echo.Context)	error	{
 	db := db.DbManager()
 
-	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
+
 
 	params := new(Adminlib.CreateAdminParams)
 	if err := c.Bind(params); err != nil {
@@ -100,11 +101,12 @@ func CreateAdmin(c echo.Context)	error	{
 func GetAdmin(c echo.Context) error  {
 	db := db.DbManager()
 
-	db, err := gorm.Open("sqlite3", "./storage/database.db")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
+
 	var admins []models.Admin
 
 	db.Find(&admins)
