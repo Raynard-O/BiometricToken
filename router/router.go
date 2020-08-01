@@ -16,13 +16,14 @@ var Hmac = configuration.GetHmacSigningKey()
 func New() *echo.Echo {
 
 	e := echo.New()
+	api := e.Group("/v1")
 	e.GET("/index", home)
 	e.POST("/verify", controllers.Verify)
 
 	e.GET("/getusers", controllers.GetUsers)
 
 	// admin access
-	adminGroup := e.Group("/admin")
+	adminGroup := api.Group("/admin")
 	adminGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: Hmac,
 		SigningMethod: "HS512",

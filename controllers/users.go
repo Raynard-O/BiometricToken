@@ -17,7 +17,7 @@ import (
 func RegisterUsers(c echo.Context)	error  {
 	db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
@@ -44,7 +44,7 @@ func RegisterUsers(c echo.Context)	error  {
 	user := new(models.User)
 
 	exists = db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
-	if exists {
+	if !exists {
 		return BadRequestResponse(c,lib.AccountExists)
 	}
 	newUser := models.User{
@@ -54,11 +54,9 @@ func RegisterUsers(c echo.Context)	error  {
 		Password:      lib.GenerateHashFromPassword(params.Password),
 		BioAuth:       true,
 		Active:        true,
-		AdminEnrolled: models.WhoEnrolled{
-			AdminEmail: adminAuth.Email,
-			AdminFullName: adminAuth.FullName,
-			AdminID: adminAuth.ID,
-		},
+		AdminEmail: adminAuth.Email,
+		AdminFullName: adminAuth.FullName,
+		AdminID: adminAuth.ID,
 	}
 
 	db.Save(&newUser)
@@ -91,7 +89,7 @@ func Verify(c echo.Context)	error {
 	//init the db
 	db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
@@ -135,7 +133,7 @@ func Verify(c echo.Context)	error {
 func GetUsers(c echo.Context) error  {
 	db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
@@ -146,6 +144,5 @@ func GetUsers(c echo.Context) error  {
 
 	db.Find(&users)
 
-	return c.JSONPretty(200,users,"")
-	//return DataResponse(c, users, http.StatusOK)
+	return DataResponse(c, users, http.StatusOK)
 }

@@ -13,13 +13,13 @@ var err error
 func DbInit()  {
 
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
 
-	db.AutoMigrate(&models.Admin{})
+	db.AutoMigrate(&models.Admin{},&models.User{})
 }
 
 

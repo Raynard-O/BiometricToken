@@ -20,6 +20,9 @@ type User struct {
 	BioAuth      bool      `json:"bio_auth"`
 	Active       bool      `json:"active"`
 	LastVerified time.Time	`json:"last_verified"`
+	AdminFullName string	`json:"admin_full_name"`
+	AdminEmail	string	`json:"admin_email"`
+	AdminID	uint	`json:"admin_id"`
 	AdminEnrolled	WhoEnrolled	`json:"admin_enrolled"`
 }
 

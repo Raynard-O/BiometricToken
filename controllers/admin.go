@@ -15,16 +15,18 @@ import (
 func LoginAdmin(c echo.Context) error {
 	db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
 	defer db.Close()
 
 	adminParams := new(Adminlib.AdminLoginParams)
-
+	if err := c.Bind(adminParams); err != nil {
+		panic("error binding params")
+	}
 	admin := new(models.Admin)
-	exists := db.Where("email = ?", adminParams.Email).First(&admin).RecordNotFound()
+	exists := db.Where("email = ?", adminParams.Email).Find(&admin).RecordNotFound()
 
 	if exists {
 		return BadRequestResponse(c,lib.AccountNotExist)
@@ -36,7 +38,7 @@ func LoginAdmin(c echo.Context) error {
 
 	passwordMatch := lib.CompareHashWithPassword(admin.Password, adminParams.Password)
 	
-	if !passwordMatch  || !adminParams.Auth {
+	if !passwordMatch  || !adminParams.BioAuth {
 		return BadRequestResponse(c, lib.WrongPassword)
 	}
 	admin.LastVerified = time.Now()
@@ -56,7 +58,7 @@ func LoginAdmin(c echo.Context) error {
 func CreateAdmin(c echo.Context)	error	{
 	db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
@@ -77,7 +79,7 @@ func CreateAdmin(c echo.Context)	error	{
 	admin.Email = params.Email
 	admin.Password = lib.GenerateHashFromPassword(params.Password)
 	admin.CreatedAt = time.Now()
-	admin.BioAuth = true
+	admin.BioAuth = params.BioAuth
 	admin.Active = true
 	db.Create(&admin)
 	db.Save(&admin)
@@ -101,7 +103,7 @@ func CreateAdmin(c echo.Context)	error	{
 func GetAdmin(c echo.Context) error  {
 	db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biometrictoken sslmode=disable")
+	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
