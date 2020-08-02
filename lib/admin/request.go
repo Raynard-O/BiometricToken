@@ -9,6 +9,7 @@ type AdminLoginParams struct {
 
 type CreateAdminParams struct {
 	Password string `json:"password" validate:"required"`
+	ConfirmPassword string `json:"confirm_password" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
 	FullName  string `json:"full_name"`
 	BioAuth      bool      `json:"bio_auth"`

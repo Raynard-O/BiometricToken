@@ -13,20 +13,20 @@ import (
 )
 
 func LoginAdmin(c echo.Context) error {
-	db := db.DbManager()
+	Db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
+	Db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	defer db.Close()
+	defer Db.Close()
 
 	adminParams := new(Adminlib.AdminLoginParams)
 	if err := c.Bind(adminParams); err != nil {
 		panic("error binding params")
 	}
 	admin := new(models.Admin)
-	exists := db.Where("email = ?", adminParams.Email).Find(&admin).RecordNotFound()
+	exists := Db.Where("email = ?", adminParams.Email).Find(&admin).RecordNotFound()
 
 	if exists {
 		return BadRequestResponse(c,lib.AccountNotExist)
@@ -51,26 +51,30 @@ func LoginAdmin(c echo.Context) error {
 		Active:     true,
 		Token: token,
 	}
-	db.Save(&admin)
+	Db.Save(&admin)
 	return DataResponse(c, response, http.StatusAccepted)
 }
 
 func CreateAdmin(c echo.Context)	error	{
-	db := db.DbManager()
+	Db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
+	Db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	defer db.Close()
+	defer Db.Close()
 
 
 	params := new(Adminlib.CreateAdminParams)
 	if err := c.Bind(params); err != nil {
 		panic("error getting params")
 	}
+	if params.Password !=	params.ConfirmPassword {
+		return BadRequestResponse(c, "Input Password Error")
+	}
+
 	admin := new(models.Admin)
-	exists := db.Where("email = ?", params.Email).First(&admin).RecordNotFound()
+	exists := Db.Where("email = ?", params.Email).First(&admin).RecordNotFound()
 
 	if !exists {
 		return BadRequestResponse(c,lib.AccountExists)
@@ -81,8 +85,8 @@ func CreateAdmin(c echo.Context)	error	{
 	admin.CreatedAt = time.Now()
 	admin.BioAuth = params.BioAuth
 	admin.Active = true
-	db.Create(&admin)
-	db.Save(&admin)
+	Db.Create(&admin)
+	Db.Save(&admin)
 
 	adminResponse := Adminlib.AdminCreateResponse{
 		FullName: admin.FullName,
@@ -90,7 +94,7 @@ func CreateAdmin(c echo.Context)	error	{
 		BioAuth:  admin.BioAuth,
 		Active:   admin.Active,
 	}
-	exists = db.Where("email= ?", admin.Email).Find(&admin).RecordNotFound()
+	exists = Db.Where("email= ?", admin.Email).Find(&admin).RecordNotFound()
 	if exists == true {
 		return c.JSON(http.StatusNotModified, lib.AccountNotExist)
 	}
@@ -99,19 +103,18 @@ func CreateAdmin(c echo.Context)	error	{
 	return DataResponse(c, adminResponse, http.StatusAccepted)
 }
 
-
 func GetAdmin(c echo.Context) error  {
-	db := db.DbManager()
+	Db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
+	Db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	defer db.Close()
+	defer Db.Close()
 
 	var admins []models.Admin
 
-	db.Find(&admins)
+	Db.Find(&admins)
 
 
 	return DataResponse(c, admins, http.StatusOK)

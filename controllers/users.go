@@ -15,20 +15,20 @@ import (
 
 
 func RegisterUsers(c echo.Context)	error  {
-	db := db.DbManager()
+	Db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
+	Db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	defer db.Close()
+	defer Db.Close()
 
 	context := c.Get("user").(*jwt.Token)
 	claims := context.Claims.(jwt.MapClaims)
 	adminEmail := claims["email"]
 
 	adminAuth := new(models.Admin)
-	exists := db.Where("email = ?", adminEmail).First(&adminAuth).RecordNotFound()
+	exists := Db.Where("email = ?", adminEmail).First(&adminAuth).RecordNotFound()
 	if exists {
 		return BadRequestResponse(c,"Admin Verification from jwt claims Error")
 	}
@@ -40,10 +40,13 @@ func RegisterUsers(c echo.Context)	error  {
 		return BadRequestResponse(c,lib.INVALID_BODY)
 	}
 	log.Println(params)
+	if params.Password !=	params.ConfirmPassword {
+		return BadRequestResponse(c, "Input Password Error")
+	}
 
 	user := new(models.User)
 
-	exists = db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
+	exists = Db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
 	if !exists {
 		return BadRequestResponse(c,lib.AccountExists)
 	}
@@ -59,8 +62,8 @@ func RegisterUsers(c echo.Context)	error  {
 		AdminID: adminAuth.ID,
 	}
 
-	db.Save(&newUser)
-	exists = db.Where("email= ?", newUser.Email).Find(&user).RecordNotFound()
+	Db.Save(&newUser)
+	exists = Db.Where("email= ?", newUser.Email).Find(&user).RecordNotFound()
 	if exists == true {
 		return BadRequestResponse(c,"Error saving user details")
 
@@ -81,29 +84,27 @@ func RegisterUsers(c echo.Context)	error  {
 	return DataResponse(c, response, http.StatusOK)
 }
 
-// verify user in db then generate jwt for verify page
-
 
 //verify user with biodata
 func Verify(c echo.Context)	error {
-	//init the db
-	db := db.DbManager()
+	//init the Db
+	Db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
+	Db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	defer db.Close()
+	defer Db.Close()
 
 
-	//use the email to pull user from db
+	//use the email to pull user from Db
 	params := new(Userlib.VerifyParams)
 	if err := c.Bind(params); err != nil {
 		panic("error get input data")
 	}
-	//query db for user
+	//query Db for user
 	user := new(models.User)
-	exists := db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
+	exists := Db.Where("email = ?", params.Email).Find(&user).RecordNotFound()
 	if exists == true {
 		return BadRequestResponse(c,"Error saving user details")
 	}
@@ -114,7 +115,7 @@ func Verify(c echo.Context)	error {
 	}
 	lastVerified := time.Now()
 	user.LastVerified = lastVerified
-	db.Save(&user)
+	Db.Save(&user)
 	//response
 	response := Userlib.UserVerifyResonse{
 		FullName:   user.FullName,
@@ -131,18 +132,18 @@ func Verify(c echo.Context)	error {
 
 
 func GetUsers(c echo.Context) error  {
-	db := db.DbManager()
+	Db := db.DbManager()
 
-	db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
+	Db, err := gorm.Open("postgres", ".user=raynardomongbale password=raynard dbname=biotoken sslmode=disable")
 	if err != nil {
 		log.Println("Error Connecting to Database")
 	}
-	defer db.Close()
+	defer Db.Close()
 
 
 	var users []models.User
 
-	db.Find(&users)
+	Db.Find(&users)
 
 	return DataResponse(c, users, http.StatusOK)
 }

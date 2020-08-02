@@ -28,7 +28,7 @@ func New() *echo.Echo {
 		SigningKey: Hmac,
 		SigningMethod: "HS512",
 		Skipper: func(c echo.Context) bool {
-			if c.Path() == "/admin/adminlogin"	|| c.Path() == "/admin/createadmin"	|| c.Path() == "/admin/getadmins" {
+			if c.Path() == "/v1/admin/adminlogin"	|| c.Path() == "/v1/admin/createadmin"	|| c.Path() == "/v1/admin/getadmins" {
 				return true
 			}
 			return false
